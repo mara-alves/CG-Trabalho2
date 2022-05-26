@@ -11,9 +11,14 @@ var ratio = 1.25,
     last_width, 
     last_height;
 
-var planetRadius = 50;
+var planetRadius = 50, longitude, latitude;
 var rocketObj, colisionSphere, rocketBody, rocketNose, windowRocket, thrusters = [];
 const objects = [];
+
+
+function setCartesianCoordinates(obj, radius, longitude, latitude) { 
+    obj.position.set(radius * Math.cos(latitude) * Math.sin(longitude), radius * Math.sin(latitude) * Math.sin(longitude), radius * Math.cos(longitude));
+}
 
 function createRocket() {
 
@@ -47,8 +52,10 @@ function createRocket() {
     thrusters.push(new THREE.Mesh(geometry, material));
     thrusters.push(new THREE.Mesh(geometry, material));
     
-    rocketObj.position.set(planetRadius * 1.2, 0, 0);
-    
+    latitude = Math.random() * 361;
+    longitude = Math.random() * 361;
+
+    setCartesianCoordinates(rocketObj, planetRadius * 1.2, latitude, longitude);
     windowRocket.rotateX(Math.PI/2);
     windowRocket.position.set(0, 0.5, 0.9);
     rocketNose.position.set(0, bodyHeight / 2 + noseHeight / 2, 0);
@@ -67,7 +74,7 @@ function createRocket() {
     rocketObj.add(colisionSphere);
     scene.add(rocketObj);
 
-    objects.push(rocketObj);
+    //objects.push(rocketObj);
 
 }
 
