@@ -52,8 +52,8 @@ function createRocket() {
     thrusters.push(new THREE.Mesh(geometry, material));
     thrusters.push(new THREE.Mesh(geometry, material));
     
-    latitude = Math.random() * 361;
-    longitude = Math.random() * 361;
+    latitude = Math.random() * ((361 * Math.PI) / 180);
+    longitude = Math.random() * ((361 * Math.PI) / 180);
 
     setCartesianCoordinates(rocketObj, planetRadius * 1.2, latitude, longitude);
     windowRocket.rotateX(Math.PI/2);
@@ -124,11 +124,87 @@ function createPlanet(x, y, z) {
     scene.add(planet);
 }
 
+function createDodecahedron(r) {
+    'use strict';
+    var dode = new THREE.Object3D();
+
+    geometry = new THREE.DodecahedronGeometry(r, 0);
+    material = new THREE.MeshBasicMaterial({ color:  0xDDA0DD, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+
+    dode.add(mesh);
+   	setCartesianCoordinates(dode, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+
+    scene.add(dode);
+}
+
+function createPyramid(r, h) {
+    'use strict';
+    var pyramid = new THREE.Object3D();
+
+    geometry = new THREE.ConeGeometry(r, h, 4, 8);
+    material = new THREE.MeshBasicMaterial({ color: 0x98FB98, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+
+    pyramid.add(mesh);
+    setCartesianCoordinates(pyramid, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+
+
+    scene.add(pyramid);
+}
+
+function createCube(h) {
+    'use strict';
+    var cube = new THREE.Object3D();
+
+    material = new THREE.MeshBasicMaterial({ color: 0x87CEFA, wireframe: false });
+    geometry = new THREE.BoxGeometry(h, h, h);
+    mesh = new THREE.Mesh(geometry, material);
+
+    cube.add(mesh);
+    setCartesianCoordinates(cube, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+
+    scene.add(cube);
+}
+
+function createOctahedron(r) {
+	'use strict';
+    var octa = new THREE.Object3D();
+
+    material = new THREE.MeshBasicMaterial({ color: 0xFFFFE0, wireframe: false });
+    geometry = new THREE.OctahedronGeometry(r, 0);
+    mesh = new THREE.Mesh(geometry, material);
+
+    octa.add(mesh);
+    setCartesianCoordinates(octa, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+
+    scene.add(octa);
+}
+
+function createTrash() {
+	for(let i=0; i <= 5; i++){
+		 createDodecahedron(planetRadius/22);
+	}
+
+	for(let i=0; i <= 5; i++){
+		 createPyramid(planetRadius/22, planetRadius/22);
+	}
+
+	for(let i=0; i <= 5; i++){
+		 createCube(planetRadius/22);
+	}
+
+	for(let i=0; i <= 5; i++){
+		 createOctahedron(planetRadius/22);
+	}
+}
+
 function createScene() {
 	'use strict';
     scene = new THREE.Scene();
     createPlanet(0, 0, 0);
     createRocket();
+    createTrash();
 }
 
 function init() {
