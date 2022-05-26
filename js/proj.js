@@ -2,8 +2,17 @@
 
 var camera, material, geometry, mesh, scene, image;
 var camera1, renderer;
+
 var clock = new THREE.Clock();
 var delta;
+
+var moveLatitudePos = false,
+    moveLatitudeNeg = false,
+    moveLongitudePos = false,
+    moveLongitudeNeg = false;
+
+var movement;
+
 var ratio = 1.25, 
     scale = 0.010, 
     scale_width, 
@@ -11,12 +20,29 @@ var ratio = 1.25,
     last_width, 
     last_height;
 
-var planetRadius = 50, longitude, latitude;
+var planetRadius = 50, _longitude, _latitude;
 var rocketObj, colisionSphere, rocketBody, rocketNose, windowRocket, thrusters = [];
 const objects = [];
 
 
-function setCartesianCoordinates(obj, radius, longitude, latitude) { 
+function translateRocket(radius, latitude, longitude) {
+
+    var oldPosition = [radius * Math.cos(_latitude) * Math.sin(_longitude), radius * Math.sin(_latitude) * Math.sin(_longitude), radius * Math.cos(_longitude)];
+
+    _latitude = _latitude + latitude;
+    _longitude = _longitude + longitude;
+
+    var newPosition = [radius * Math.cos(_latitude) * Math.sin(_longitude), radius * Math.sin(_latitude) * Math.sin(_longitude), radius * Math.cos(_longitude)];
+
+    var diffPosition = [newPosition[0] - oldPosition[0], newPosition[1] - oldPosition[1], newPosition[2] - oldPosition[2]];
+
+    rocketObj.translateX(diffPosition[0]);
+    rocketObj.translateY(diffPosition[1]);
+    rocketObj.translateZ(diffPosition[2]);
+
+}
+
+function setCartesianCoordinates(obj, radius, latitude, longitude) { 
     obj.position.set(radius * Math.cos(latitude) * Math.sin(longitude), radius * Math.sin(latitude) * Math.sin(longitude), radius * Math.cos(longitude));
 }
 
@@ -52,10 +78,10 @@ function createRocket() {
     thrusters.push(new THREE.Mesh(geometry, material));
     thrusters.push(new THREE.Mesh(geometry, material));
     
-    latitude = Math.random() * ((361 * Math.PI) / 180);
-    longitude = Math.random() * ((361 * Math.PI) / 180);
+    _latitude = Math.random() * ((361 * Math.PI) / 180);
+    _longitude = Math.random() * ((361 * Math.PI) / 180);
 
-    setCartesianCoordinates(rocketObj, planetRadius * 1.2, latitude, longitude);
+    setCartesianCoordinates(rocketObj, planetRadius * 1.2, _latitude, _longitude);
     windowRocket.rotateX(Math.PI/2);
     windowRocket.position.set(0, 0.5, 0.9);
     rocketNose.position.set(0, bodyHeight / 2 + noseHeight / 2, 0);
@@ -73,8 +99,6 @@ function createRocket() {
     colisionSphere.add(rocketBody);
     rocketObj.add(colisionSphere);
     scene.add(rocketObj);
-
-    //objects.push(rocketObj);
 
 }
 
@@ -224,10 +248,30 @@ function init() {
     createScene();
     createCameras();
 
+    window.addEventListener("resize", onResize);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
 }
 
 function animate() {
     'use strict';
+
+    movement = [0, 0];
+
+    if (moveLatitudeNeg)
+        movement[0] -= (Math.PI/180);
+    
+    if (moveLatitudePos)
+        movement[0] += (Math.PI/180);
+    
+    if (moveLongitudeNeg)
+        movement[1] -= (Math.PI/180);
+
+    if (moveLongitudePos)
+        movement[1] += (Math.PI/180);
+
+    translateRocket(planetRadius * 1.2, movement[0], movement[1]);
+
     requestAnimationFrame(animate);
     render();
 }
@@ -237,10 +281,61 @@ function onResize() {
 }
 
 function onKeyUp(e) {
+    'use strict';
 
+    switch (e.keyCode) {
+
+        case 37: //left arrow
+            moveLongitudeNeg = false;
+            break;
+
+        case 38: //up arrow
+            moveLatitudePos = false;
+            break;
+
+        case 39: //right arrow
+            moveLongitudePos = false;
+            break;
+
+        case 40: //down arrow
+            moveLatitudeNeg = false
+            break;
+    }
 }
 
 function onKeyDown(e) {
+    'use strict';
+
+    switch (e.keyCode) {
+
+        case 37: //left arrow
+            moveLongitudeNeg = true;
+            break;
+
+        case 38: //up arrow
+            moveLatitudePos = true;
+            break;
+
+        case 39: //right arrow
+            moveLongitudePos = true;
+            break;
+
+        case 40: //down arrow
+            moveLatitudeNeg = true;
+            break;
+        
+        case 49: //1
+            camera = camera1;
+            break;
+
+        case 50: //2
+            camera = camera2;
+            break;
+        
+        case 51: //3
+            camera = camera3;
+            break;
+    }
 
 }
 function loadTexture() {
