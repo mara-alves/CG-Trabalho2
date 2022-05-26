@@ -11,6 +11,61 @@ var ratio = 1.25,
     last_width, 
     last_height;
 
+var planetRadius = 50;
+var rocketObj, rocketBody, rocketNose, windowRocket, thrusters = [];
+const objects = [];
+
+function createRocket() {
+
+    var totalHeight = planetRadius / 10;        
+    var bodyHeight = 3 * (totalHeight / 5);
+    var noseHeight = 3 * (totalHeight / 10);
+    var thrusterHeight = totalHeight / 10;
+    
+    rocketObj = new THREE.Group();
+    
+    material = new THREE.MeshBasicMaterial({color: '#f0f0f0'});
+    geometry = new THREE.CylinderGeometry(1, 1 , bodyHeight, 15);
+    rocketBody = new THREE.Mesh(geometry, material);
+    
+    material = new THREE.MeshBasicMaterial({color: '#a91b0d'});
+    geometry = new THREE.CylinderGeometry(0, 1, noseHeight, 15);
+    rocketNose = new THREE.Mesh(geometry, material);
+    
+    material = new THREE.MeshBasicMaterial({color: '#000fff'});
+    geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 15);
+    windowRocket = new THREE.Mesh(geometry, material);
+        
+    material = new THREE.MeshBasicMaterial({color: '#a91b0d'});
+    geometry = new THREE.CapsuleGeometry(0.3, thrusterHeight, 4, 8);
+    thrusters.push(new THREE.Mesh(geometry, material));
+    thrusters.push(new THREE.Mesh(geometry, material));
+    thrusters.push(new THREE.Mesh(geometry, material));
+    thrusters.push(new THREE.Mesh(geometry, material));
+    
+    rocketObj.position.set(0, planetRadius * 1.2);
+    
+    windowRocket.rotateX(Math.PI/2);
+    windowRocket.position.set(0, 0.5, 0.9);
+    rocketNose.position.set(0, bodyHeight / 2 + noseHeight / 2, 0);
+    thrusters[0].position.set(1, -bodyHeight / 2, 0);
+    thrusters[1].position.set(-1, -bodyHeight / 2, 0);
+    thrusters[2].position.set(0, -bodyHeight / 2, 1);
+    thrusters[3].position.set(0, -bodyHeight / 2, -1);
+    
+    rocketBody.add(thrusters[0]);
+    rocketBody.add(thrusters[1]);
+    rocketBody.add(thrusters[2]);
+    rocketBody.add(thrusters[3]);
+    rocketBody.add(rocketNose);
+    rocketBody.add(windowRocket);
+    rocketObj.add(rocketBody);
+    scene.add(rocketObj);
+
+    objects.push(rocketObj);
+    
+    }
+
 function render() {
     'use strict';
     delta = clock.getDelta();
@@ -31,7 +86,7 @@ function createCameras() {
     last_width = window.innerWidth;
     last_height = window.innerHeight;
 
-    camera1.position.set(50, 50, 50);
+    camera1.position.set(0, 0, 70);
     camera1.lookAt(scene.position);
 
     camera = camera1;
@@ -47,7 +102,7 @@ function createPlanet(x, y, z) {
 	    texture.needsUpdate = true;
 	};
     
-    geometry = new THREE.SphereGeometry(50, 64, 64);
+    geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
     material = new THREE.MeshBasicMaterial({ map: texture});
     mesh = new THREE.Mesh(geometry, material);
 
@@ -61,6 +116,7 @@ function createScene() {
 	'use strict';
     scene = new THREE.Scene();
     createPlanet(0, 0, 0);
+    createRocket();
 }
 
 function init() {
