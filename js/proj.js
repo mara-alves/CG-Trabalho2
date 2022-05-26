@@ -1,7 +1,7 @@
 /*global THREE*/
 
 var camera, material, geometry, mesh, scene, image;
-var camera1, renderer, delta;
+var camera1, renderer;
 var clock = new THREE.Clock();
 var delta;
 var ratio = 1.25, 
@@ -12,7 +12,7 @@ var ratio = 1.25,
     last_height;
 
 var planetRadius = 50;
-var rocketObj, rocketBody, rocketNose, windowRocket, thrusters = [];
+var rocketObj, colisionSphere, rocketBody, rocketNose, windowRocket, thrusters = [];
 const objects = [];
 
 function createRocket() {
@@ -23,6 +23,10 @@ function createRocket() {
     var thrusterHeight = totalHeight / 10;
     
     rocketObj = new THREE.Group();
+
+    material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
+    geometry = new THREE.SphereGeometry(totalHeight, 32, 16);
+    colisionSphere = new THREE.Mesh(geometry, material);
     
     material = new THREE.MeshBasicMaterial({color: '#f0f0f0'});
     geometry = new THREE.CylinderGeometry(1, 1 , bodyHeight, 15);
@@ -43,7 +47,7 @@ function createRocket() {
     thrusters.push(new THREE.Mesh(geometry, material));
     thrusters.push(new THREE.Mesh(geometry, material));
     
-    rocketObj.position.set(0, planetRadius * 1.2);
+    rocketObj.position.set(planetRadius * 1.2, 0, 0);
     
     windowRocket.rotateX(Math.PI/2);
     windowRocket.position.set(0, 0.5, 0.9);
@@ -59,12 +63,13 @@ function createRocket() {
     rocketBody.add(thrusters[3]);
     rocketBody.add(rocketNose);
     rocketBody.add(windowRocket);
-    rocketObj.add(rocketBody);
+    colisionSphere.add(rocketBody);
+    rocketObj.add(colisionSphere);
     scene.add(rocketObj);
 
     objects.push(rocketObj);
-    
-    }
+
+}
 
 function render() {
     'use strict';
