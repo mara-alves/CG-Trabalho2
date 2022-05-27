@@ -1,7 +1,7 @@
 /*global THREE*/
 
 var camera, material, geometry, mesh, scene, image;
-var camera1, renderer;
+var camera1, camera2, camera3, renderer;
 
 var clock = new THREE.Clock();
 var delta;
@@ -156,10 +156,10 @@ function render() {
     renderer.render(scene, camera);
 }
 
-function createCameras() {
-	'use strict';
+function createOrtCamera() {
+    'use strict';
 
-    if (window.innerWidth / window.innerHeight > ratio) {
+	if (window.innerWidth / window.innerHeight > ratio) {
         camera1 = new THREE.OrthographicCamera(-window.innerWidth / scale_height, window.innerWidth / scale_height, window.innerHeight / scale_height, -window.innerHeight / scale_height, 1, 1000);
     }
 
@@ -172,6 +172,32 @@ function createCameras() {
 
     camera1.position.set(0, 0, 70);
     camera1.lookAt(scene.position);
+}
+
+function createFixedPerspCamera() {
+    'use strict';
+
+	camera2 = new THREE.PerspectiveCamera(1000, window.innerWidth / window.innerHeight, 1, 1000);
+	camera2.position.set(0, 0, 100);
+	camera2.lookAt(scene.position);
+    camera2.rotateZ(Math.PI);
+}
+
+function createRocketPerspCamera() {
+    'use strict';
+
+	camera3 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 1, 100);
+	camera3.position.set(3, 6, 0);
+	camera3.lookAt(scene.position);
+    rocketObj.add(camera3);
+}
+
+function createCameras() {
+	'use strict';
+
+    createOrtCamera();
+    createFixedPerspCamera();
+    createRocketPerspCamera();
 
     camera = camera1;
 }
