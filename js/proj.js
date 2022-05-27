@@ -24,13 +24,15 @@ var planetRadius = 50, _longitude, _latitude;
 var rocketObj, colisionSphere, rocketBody, rocketNose, windowRocket, thrusters = [];
 const objects = [];
 
+var quadrant1 = [], quadrant2 = [], quadrant3 = [], quadrant4 = [];
+var toDelete = [];
 
 function translateRocket(radius, latitude, longitude) {
-
+    'use strict';
     var oldPosition = [radius * Math.cos(_latitude) * Math.sin(_longitude), radius * Math.sin(_latitude) * Math.sin(_longitude), radius * Math.cos(_longitude)];
 
-    _latitude = _latitude + latitude;
-    _longitude = _longitude + longitude;
+    _latitude = (_latitude + latitude) % (Math.PI * 2);
+    _longitude = (_longitude + longitude) % (Math.PI * 2);
 
     var newPosition = [radius * Math.cos(_latitude) * Math.sin(_longitude), radius * Math.sin(_latitude) * Math.sin(_longitude), radius * Math.cos(_longitude)];
 
@@ -43,10 +45,12 @@ function translateRocket(radius, latitude, longitude) {
 }
 
 function setCartesianCoordinates(obj, radius, latitude, longitude) { 
+    'use strict';
     obj.position.set(radius * Math.cos(latitude) * Math.sin(longitude), radius * Math.sin(latitude) * Math.sin(longitude), radius * Math.cos(longitude));
 }
 
 function createRocket() {
+    'use strict';
 
     var totalHeight = planetRadius / 10;        
     var bodyHeight = 3 * (totalHeight / 5);
@@ -99,12 +103,56 @@ function createRocket() {
     colisionSphere.add(rocketBody);
     rocketObj.add(colisionSphere);
     scene.add(rocketObj);
+}
 
+function detectCollision() {
+    'use strict';
+    var quadrant;
+
+    //rocket coordinates
+    var x = planetRadius * 1.2 * Math.cos(_latitude) * Math.sin(_longitude);
+    var y = planetRadius * 1.2 * Math.sin(_latitude) * Math.sin(_longitude);
+    var z = planetRadius * 1.2 * Math.cos(_longitude);
+
+    //quadrant 1
+    if (_latitude < Math.PI && _longitude < Math.PI)
+        quadrant = quadrant1;
+        
+    //quadrant 2
+    else if (_latitude < Math.PI && _longitude >= Math.PI)
+        quadrant = quadrant2;
+        
+    //quadrant 3
+    else if (_latitude >= Math.PI && _longitude < Math.PI)
+        quadrant = quadrant3;
+        
+    //quadrant 4
+    else if (_latitude >= Math.PI && _longitude >= Math.PI)
+        quadrant = quadrant4;
+
+    for (let i = 0; i < quadrant.length; i++) {
+        var obj = quadrant[i];
+        if (Math.sqrt(Math.pow(obj.position.x - x, 2) + Math.pow(obj.position.y - y, 2) + Math.pow(obj.position.z - z, 2)) <= planetRadius/22 + planetRadius/10) {
+            toDelete.push(obj);    
+        }
+    }
+
+    for (let i = 0; i < toDelete.length; i++) {
+        var obj = toDelete[i];
+        quadrant.pop(obj);
+    }
 }
 
 function render() {
     'use strict';
     delta = clock.getDelta();
+
+    for (let i = 0; i < toDelete.length; i++) {
+        var obj = toDelete[i];
+        scene.remove(obj);
+    }
+
+    toDelete = [];
     renderer.render(scene, camera);
 }
 
@@ -148,6 +196,20 @@ function createPlanet(x, y, z) {
     scene.add(planet);
 }
 
+function addToQuadrant(obj, lat, lon) {
+    if (lat < Math.PI && lon < Math.PI)
+        quadrant1.push(obj);
+
+    else if (lat < Math.PI && lon >= Math.PI)
+        quadrant2.push(obj);
+    
+    else if (lat >= Math.PI && lon < Math.PI)
+        quadrant3.push(obj);
+    
+    else if (lat >= Math.PI && lon >= Math.PI)
+        quadrant4.push(obj);
+}
+
 function createDodecahedron(r) {
     'use strict';
     var dode = new THREE.Object3D();
@@ -156,8 +218,17 @@ function createDodecahedron(r) {
     material = new THREE.MeshBasicMaterial({ color:  0xDDA0DD, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
+    material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
+    geometry = new THREE.SphereGeometry(r, 32, 16);
+    var sphere = new THREE.Mesh(geometry, material);
+
     dode.add(mesh);
-   	setCartesianCoordinates(dode, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+    dode.add(sphere);
+
+    var lat = Math.random() * ((361 * Math.PI) / 180);
+    var lon = Math.random() * ((361 * Math.PI) / 180);
+   	setCartesianCoordinates(dode, planetRadius * 1.2, lat, lon);
+    addToQuadrant(dode, lat, lon);
 
     scene.add(dode);
 }
@@ -170,9 +241,17 @@ function createPyramid(r, h) {
     material = new THREE.MeshBasicMaterial({ color: 0x98FB98, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
-    pyramid.add(mesh);
-    setCartesianCoordinates(pyramid, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+    material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
+    geometry = new THREE.SphereGeometry(r, 32, 16);
+    var sphere = new THREE.Mesh(geometry, material);
 
+    pyramid.add(mesh);
+    pyramid.add(sphere);
+
+    var lat = Math.random() * ((361 * Math.PI) / 180);
+    var lon = Math.random() * ((361 * Math.PI) / 180);
+    setCartesianCoordinates(pyramid, planetRadius * 1.2, lat, lon);
+    addToQuadrant(pyramid, lat, lon);
 
     scene.add(pyramid);
 }
@@ -185,8 +264,17 @@ function createCube(h) {
     geometry = new THREE.BoxGeometry(h, h, h);
     mesh = new THREE.Mesh(geometry, material);
 
+    material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
+    geometry = new THREE.SphereGeometry(h, 32, 16);
+    var sphere = new THREE.Mesh(geometry, material);
+
     cube.add(mesh);
-    setCartesianCoordinates(cube, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+    cube.add(sphere);
+
+    var lat = Math.random() * ((361 * Math.PI) / 180);
+    var lon = Math.random() * ((361 * Math.PI) / 180);
+    setCartesianCoordinates(cube, planetRadius * 1.2, lat, lon);
+    addToQuadrant(cube, lat, lon);
 
     scene.add(cube);
 }
@@ -199,27 +287,36 @@ function createOctahedron(r) {
     geometry = new THREE.OctahedronGeometry(r, 0);
     mesh = new THREE.Mesh(geometry, material);
 
+    material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
+    geometry = new THREE.SphereGeometry(r, 32, 16);
+    var sphere = new THREE.Mesh(geometry, material);
+
     octa.add(mesh);
-    setCartesianCoordinates(octa, planetRadius * 1.2, Math.random() * ((361 * Math.PI) / 180),  Math.random() * ((361 * Math.PI) / 180));
+    octa.add(sphere);
+
+    var lat = Math.random() * ((361 * Math.PI) / 180);
+    var lon = Math.random() * ((361 * Math.PI) / 180);
+    setCartesianCoordinates(octa, planetRadius * 1.2, lat, lon);
+    addToQuadrant(octa, lat, lon);
 
     scene.add(octa);
 }
 
 function createTrash() {
 	for(let i=0; i <= 5; i++){
-		 createDodecahedron(planetRadius/22);
+		createDodecahedron(planetRadius/22);
 	}
 
 	for(let i=0; i <= 5; i++){
-		 createPyramid(planetRadius/22, planetRadius/22);
+		createPyramid(planetRadius/22, planetRadius/22);
 	}
 
 	for(let i=0; i <= 5; i++){
-		 createCube(planetRadius/22);
+		createCube(planetRadius/22);
 	}
 
 	for(let i=0; i <= 5; i++){
-		 createOctahedron(planetRadius/22);
+		createOctahedron(planetRadius/22);
 	}
 }
 
@@ -271,6 +368,7 @@ function animate() {
         movement[1] += (Math.PI/180);
 
     translateRocket(planetRadius * 1.2, movement[0], movement[1]);
+    detectCollision();
 
     requestAnimationFrame(animate);
     render();
