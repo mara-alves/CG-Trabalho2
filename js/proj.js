@@ -20,30 +20,40 @@ var ratio = 1.25,
     last_width, 
     last_height;
 
-var planetRadius = 50, _longitude, _latitude;
+var planetRadius = 50, _longitude, _colatitude;
 var rocketObj, colisionSphere, rocketBody, rocketNose, windowRocket, thrusters = [];
 const objects = [];
 
 var quadrant1 = [], quadrant2 = [], quadrant3 = [], quadrant4 = [];
 var toDelete = [];
 
-function translateRocket(radius, latitude, longitude) {
+var signal = 1;
+
+function translateRocket(radius, colatitude, longitude) {
     'use strict';
-    var oldPosition = [radius * Math.cos(_longitude) * Math.sin(_latitude), radius * Math.sin(_longitude) * Math.sin(_latitude), radius * Math.cos(_latitude)];
+    var oldPosition = [radius * Math.cos(_longitude) * Math.sin(_colatitude), radius * Math.sin(_longitude) * Math.sin(_colatitude), radius * Math.cos(_colatitude)];
 
-    _latitude = (_latitude + latitude) % (Math.PI);
-    _longitude = (_longitude + longitude) % (Math.PI * 2);
+    _colatitude += colatitude*signal; // theta, from 0 to pi
+    _longitude += longitude; // phi, from 0 to 2pi
 
-    if (_latitude < 0)
-        _latitude = Math.PI + _latitude;
-
-    if (_longitude < 0)
+    if (_colatitude < 0) {
+        _colatitude = -_colatitude;
+        _longitude = _longitude - Math.PI;
+        signal = signal*(-1);
+    }
+    if (_colatitude > Math.PI) {
+        _colatitude = Math.PI - (_colatitude - Math.PI);
+        _longitude = _longitude - Math.PI;
+        signal = signal*(-1);
+    }
+    if (_longitude < 0) {
         _longitude = Math.PI * 2 + _longitude;
+    }
+    if (_longitude > Math.PI * 2) {
+        _longitude = Math.PI * 2 - _longitude;
+    }
 
-    //console.log(_latitude);
-    //console.log(_longitude);
-
-    var newPosition = [radius * Math.cos(_longitude) * Math.sin(_latitude), radius * Math.sin(_longitude) * Math.sin(_latitude), radius * Math.cos(_latitude)];
+    var newPosition = [radius * Math.cos(_longitude) * Math.sin(_colatitude), radius * Math.sin(_longitude) * Math.sin(_colatitude), radius * Math.cos(_colatitude)];
 
     var diffPosition = [newPosition[0] - oldPosition[0], newPosition[1] - oldPosition[1], newPosition[2] - oldPosition[2]];
 
@@ -53,12 +63,12 @@ function translateRocket(radius, latitude, longitude) {
 
 }
 
-function setCartesianCoordinates(obj, radius, latitude, longitude) { 
+function setCartesianCoordinates(obj, radius, colatitude, longitude) { 
     'use strict';
     
-    console.log("Latitude: " + latitude + " !Longitude: " + longitude);
-    console.log("X: " + radius * Math.cos(latitude) * Math.sin(longitude) + " !Y: " + radius * Math.sin(latitude) * Math.sin(longitude) + " !Z: " + radius * Math.cos(longitude));
-    obj.position.set(radius * Math.cos(longitude) * Math.sin(latitude), radius * Math.sin(longitude) * Math.sin(latitude), radius * Math.cos(latitude));
+    console.log("colatitude: " + colatitude + " !Longitude: " + longitude);
+    console.log("X: " + radius * Math.cos(colatitude) * Math.sin(longitude) + " !Y: " + radius * Math.sin(colatitude) * Math.sin(longitude) + " !Z: " + radius * Math.cos(longitude));
+    obj.position.set(radius * Math.cos(longitude) * Math.sin(colatitude), radius * Math.sin(longitude) * Math.sin(colatitude), radius * Math.cos(colatitude));
 }
 
 function createRocket() {
@@ -94,10 +104,10 @@ function createRocket() {
     thrusters.push(new THREE.Mesh(geometry, material));
     thrusters.push(new THREE.Mesh(geometry, material));
     
-    _latitude = Math.random() * ((181 * Math.PI) / 180);
+    _colatitude = Math.random() * ((181 * Math.PI) / 180);
     _longitude = Math.random() * ((361 * Math.PI) / 180);
 
-    setCartesianCoordinates(rocketObj, planetRadius * 1.2, _latitude, _longitude);
+    setCartesianCoordinates(rocketObj, planetRadius * 1.2, _colatitude, _longitude);
     windowRocket.rotateX(Math.PI/2);
     windowRocket.position.set(0, 0.5, 0.9);
     rocketNose.position.set(0, bodyHeight / 2 + noseHeight / 2, 0);
@@ -122,35 +132,35 @@ function detectCollision() {
     var quadrant;
 
     //rocket coordinates
-    var x = planetRadius * 1.2 * Math.cos(_latitude) * Math.sin(_longitude);
-    var y = planetRadius * 1.2 * Math.sin(_latitude) * Math.sin(_longitude);
-    var z = planetRadius * 1.2 * Math.cos(_longitude);
+    var x = rocketObj.position.x;
+    var y = rocketObj.position.y;
+    var z = rocketObj.position.z;
 
     //quadrant 1
-    if (_latitude < Math.PI / 2 && _longitude < Math.PI) {
+    if (_colatitude < Math.PI / 2 && _longitude < Math.PI) {
         quadrant = quadrant1;
         console.log("1!");
     }
         
     //quadrant 2
-    else if (_latitude < Math.PI / 2 && _longitude >= Math.PI) {
+    else if (_colatitude < Math.PI / 2 && _longitude >= Math.PI) {
         quadrant = quadrant2;
         console.log("2!");
     }
         
     //quadrant 3
-    else if (_latitude >= Math.PI / 2 && _longitude < Math.PI) {
+    else if (_colatitude >= Math.PI / 2 && _longitude < Math.PI) {
         quadrant = quadrant3;
         console.log("3!");
     }
         
     //quadrant 4
-    else if (_latitude >= Math.PI / 2 && _longitude >= Math.PI) {
+    else if (_colatitude >= Math.PI / 2 && _longitude >= Math.PI) {
         quadrant = quadrant4;
         console.log("4!");
     }
 
-    console.log("Rocket Position = (" + _latitude + ", " + _longitude +  ")")
+    console.log("Rocket Position = (" + _colatitude + ", " + _longitude +  ")")
     console.log(quadrant);
 
     console.log("Quadrant 1: " + quadrant1);
@@ -254,17 +264,17 @@ function createPlanet(x, y, z) {
     scene.add(planet);
 }
 
-function addToQuadrant(obj, lat, lon) {
-    if (lat < Math.PI / 2 && lon < Math.PI)
+function addToQuadrant(obj, colat, lon) {
+    if (colat < Math.PI / 2 && lon < Math.PI)
         quadrant1.push(obj);
 
-    else if (lat < Math.PI / 2 && lon >= Math.PI)
+    else if (colat < Math.PI / 2 && lon >= Math.PI)
         quadrant2.push(obj);
     
-    else if (lat >= Math.PI / 2 && lon < Math.PI)
+    else if (colat >= Math.PI / 2 && lon < Math.PI)
         quadrant3.push(obj);
     
-    else if (lat >= Math.PI / 2 && lon >= Math.PI)
+    else if (colat >= Math.PI / 2 && lon >= Math.PI)
         quadrant4.push(obj);
 }
 
@@ -283,10 +293,10 @@ function createDodecahedron(r) {
     dode.add(mesh);
     dode.add(sphere);
 
-    var lat = Math.random() * ((181 * Math.PI) / 180);
+    var colat = Math.random() * ((181 * Math.PI) / 180);
     var lon = Math.random() * ((361 * Math.PI) / 180);
-   	setCartesianCoordinates(dode, planetRadius * 1.2, lat, lon);
-    addToQuadrant(dode, lat, lon);
+   	setCartesianCoordinates(dode, planetRadius * 1.2, colat, lon);
+    addToQuadrant(dode, colat, lon);
 
     scene.add(dode);
 }
@@ -306,10 +316,10 @@ function createPyramid(r, h) {
     pyramid.add(mesh);
     pyramid.add(sphere);
 
-    var lat = Math.random() * ((181 * Math.PI) / 180);
+    var colat = Math.random() * ((181 * Math.PI) / 180);
     var lon = Math.random() * ((361 * Math.PI) / 180);
-    setCartesianCoordinates(pyramid, planetRadius * 1.2, lat, lon);
-    addToQuadrant(pyramid, lat, lon);
+    setCartesianCoordinates(pyramid, planetRadius * 1.2, colat, lon);
+    addToQuadrant(pyramid, colat, lon);
 
     scene.add(pyramid);
 }
@@ -329,10 +339,10 @@ function createCube(h) {
     cube.add(mesh);
     cube.add(sphere);
 
-    var lat = Math.random() * ((181 * Math.PI) / 180);
+    var colat = Math.random() * ((181 * Math.PI) / 180);
     var lon = Math.random() * ((361 * Math.PI) / 180);
-    setCartesianCoordinates(cube, planetRadius * 1.2, lat, lon);
-    addToQuadrant(cube, lat, lon);
+    setCartesianCoordinates(cube, planetRadius * 1.2, colat, lon);
+    addToQuadrant(cube, colat, lon);
 
     scene.add(cube);
 }
@@ -352,10 +362,10 @@ function createOctahedron(r) {
     octa.add(mesh);
     octa.add(sphere);
 
-    var lat = Math.random() * ((181 * Math.PI) / 180);
+    var colat = Math.random() * ((181 * Math.PI) / 180);
     var lon = Math.random() * ((361 * Math.PI) / 180);
-    setCartesianCoordinates(octa, planetRadius * 1.2, lat, lon);
-    addToQuadrant(octa, lat, lon);
+    setCartesianCoordinates(octa, planetRadius * 1.2, colat, lon);
+    addToQuadrant(octa, colat, lon);
 
     scene.add(octa);
 }
