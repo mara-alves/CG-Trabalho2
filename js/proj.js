@@ -168,16 +168,13 @@ function detectCollision() {
     console.log("Quadrant 3: " + quadrant3);
     console.log("Quadrant 4: " + quadrant4);
 
-    for (let i = 0; i < quadrant.length; i++) {
+    for (var i = quadrant.length - 1; i >= 0; i--) {
         var obj = quadrant[i];
+        var distance = Math.sqrt(Math.pow(obj.position.x - x, 2) + Math.pow(obj.position.y - y, 2) + Math.pow(obj.position.z - z, 2));
 
-        if (typeof obj !== "undefined") {
-            var distance = Math.sqrt(Math.pow(obj.position.x - x, 2) + Math.pow(obj.position.y - y, 2) + Math.pow(obj.position.z - z, 2));
-            //console.log("Object Position = (" + obj.position.x + ", " + obj.position.y + ", " + obj.position.z + ")");
-            if (distance <= planetRadius/22 + planetRadius/10) {
-                toDelete.push(obj);
-                delete quadrant[i];
-            }
+        if (distance <= planetRadius/22 + planetRadius/10) {
+            toDelete.push(obj);
+            quadrant.splice(i, 1);
         }
     }
 }
