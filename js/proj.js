@@ -170,31 +170,30 @@ function detectCollision() {
 
     for (let i = 0; i < quadrant.length; i++) {
         var obj = quadrant[i];
-        var distance = Math.sqrt(Math.pow(obj.position.x - x, 2) + Math.pow(obj.position.y - y, 2) + Math.pow(obj.position.z - z, 2));
-        //console.log("Object Position = (" + obj.position.x + ", " + obj.position.y + ", " + obj.position.z + ")");
-        if (distance <= planetRadius/22 + planetRadius/10) {
-            toDelete.push(obj);    
+
+        if (typeof obj !== "undefined") {
+            var distance = Math.sqrt(Math.pow(obj.position.x - x, 2) + Math.pow(obj.position.y - y, 2) + Math.pow(obj.position.z - z, 2));
+            //console.log("Object Position = (" + obj.position.x + ", " + obj.position.y + ", " + obj.position.z + ")");
+            if (distance <= planetRadius/22 + planetRadius/10) {
+                toDelete.push(obj);
+                delete quadrant[i];
+            }
         }
     }
+}
 
+function deleteTrash() {
+    'use strict';
     for (let i = 0; i < toDelete.length; i++) {
-        var obj = toDelete[i];
-        quadrant.pop(obj);
+        scene.remove(toDelete[i]);
     }
+    toDelete = [];
 }
 
 function render() {
     'use strict';
     delta = clock.getDelta();
-
-    //console.log(toDelete);
-
-    for (let i = 0; i < toDelete.length; i++) {
-        var obj = toDelete[i];
-        scene.remove(obj);
-    }
-
-    toDelete = [];
+    deleteTrash();
     renderer.render(scene, camera);
 }
 
@@ -371,19 +370,19 @@ function createOctahedron(r) {
 }
 
 function createTrash() {
-	for(let i=0; i < 0; i++){
+	for(let i=0; i < 5; i++){
 		createDodecahedron(planetRadius/22);
 	}
 
-	for(let i=0; i < 0; i++){
+	for(let i=0; i < 5; i++){
 		createPyramid(planetRadius/22, planetRadius/22);
 	}
 
-	for(let i=0; i < 0; i++){
+	for(let i=0; i < 5; i++){
 		createCube(planetRadius/22);
 	}
 
-	for(let i=0; i < 1; i++){
+	for(let i=0; i < 5; i++){
 		createOctahedron(planetRadius/22);
 	}
 }
