@@ -29,6 +29,8 @@ var toDelete = [];
 
 var signal = 1;
 
+var colors = [0xDDA0DD, 0x98FB98, 0x87CEFA, 0xFFFFE0, 0xCD5C5C, 0xF0E68C, 0x00FFFF, 0xBA55D3, 0xFF69B4, 0xFFFF00, 0x00BFFF];
+
 function translateRocket(radius, colatitude, longitude) {
     'use strict';
     var oldPosition = [radius * Math.cos(_longitude) * Math.sin(_colatitude), radius * Math.sin(_longitude) * Math.sin(_colatitude), radius * Math.cos(_colatitude)];
@@ -277,9 +279,11 @@ function addToQuadrant(obj, colat, lon) {
 function createDodecahedron(r) {
     'use strict';
     var dode = new THREE.Object3D();
+    var randomColor = colors[Math.floor(Math.random()*colors.length)];
+
 
     geometry = new THREE.DodecahedronGeometry(r, 0);
-    material = new THREE.MeshBasicMaterial({ color:  0xDDA0DD, wireframe: false });
+    material = new THREE.MeshBasicMaterial({ color:  randomColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
     material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
@@ -300,9 +304,10 @@ function createDodecahedron(r) {
 function createPyramid(r, h) {
     'use strict';
     var pyramid = new THREE.Object3D();
+    var randomColor = colors[Math.floor(Math.random()*colors.length)];
 
     geometry = new THREE.ConeGeometry(r, h, 4, 8);
-    material = new THREE.MeshBasicMaterial({ color: 0x98FB98, wireframe: false });
+    material = new THREE.MeshBasicMaterial({ color: randomColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
     material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0});
@@ -323,8 +328,9 @@ function createPyramid(r, h) {
 function createCube(h) {
     'use strict';
     var cube = new THREE.Object3D();
+    var randomColor = colors[Math.floor(Math.random()*colors.length)];
 
-    material = new THREE.MeshBasicMaterial({ color: 0x87CEFA, wireframe: false });
+    material = new THREE.MeshBasicMaterial({ color: randomColor, wireframe: false });
     geometry = new THREE.BoxGeometry(h, h, h);
     mesh = new THREE.Mesh(geometry, material);
 
@@ -346,8 +352,9 @@ function createCube(h) {
 function createOctahedron(r) {
 	'use strict';
     var octa = new THREE.Object3D();
+    var randomColor = colors[Math.floor(Math.random()*colors.length)];
 
-    material = new THREE.MeshBasicMaterial({ color: 0xFFFFE0, wireframe: false });
+    material = new THREE.MeshBasicMaterial({ color: randomColor, wireframe: false });
     geometry = new THREE.OctahedronGeometry(r, 0);
     mesh = new THREE.Mesh(geometry, material);
 
