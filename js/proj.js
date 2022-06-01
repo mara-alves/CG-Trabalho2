@@ -112,7 +112,7 @@ function createRocket() {
     rocketObj = new THREE.Group();
 
     material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0 });
-    geometry = new THREE.SphereGeometry(totalHeight, 32, 16);
+    geometry = new THREE.SphereGeometry(totalHeight / 2, 32, 16);
     colisionSphere = new THREE.Mesh(geometry, material);
 
     material = new THREE.MeshBasicMaterial({ color: "#f0f0f0" });
@@ -379,7 +379,7 @@ function createCube(h) {
     mesh = new THREE.Mesh(geometry, material);
 
     material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0 });
-    geometry = new THREE.SphereGeometry(h, 32, 16);
+    geometry = new THREE.SphereGeometry(h / 2, 32, 16);
     var sphere = new THREE.Mesh(geometry, material);
 
     cube.add(mesh);
@@ -421,20 +421,20 @@ function createOctahedron(r) {
 }
 
 function createTrash() {
-    for (let i = 0; i < 30; i++) {
-        createDodecahedron(planetRadius / 22);
+    for (let i = 0; i < 10; i++) {
+        createDodecahedron((planetRadius / 22) / 2);
     }
 
-    for (let i = 0; i < 30; i++) {
-        createPyramid(planetRadius / 22, planetRadius / 22);
+    for (let i = 0; i < 10; i++) {
+        createPyramid((planetRadius / 22) / 2, planetRadius / 22);
     }
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 10; i++) {
         createCube(planetRadius / 22);
     }
 
-    for (let i = 0; i < 30; i++) {
-        createOctahedron(planetRadius / 22);
+    for (let i = 0; i < 10; i++) {
+        createOctahedron((planetRadius / 22) / 2);
     }
 }
 
