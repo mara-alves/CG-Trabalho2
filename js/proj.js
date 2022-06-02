@@ -45,6 +45,30 @@ var colors = [
     0xba55d3, 0xff69b4, 0xffff00, 0x00bfff,
 ];
 
+function checkCollisionQuadrant() {
+
+    var quadrant = [];
+    var bufferAngle = (5 * Math.PI) / 180;
+
+    if (_colatitude < (Math.PI / 2 + bufferAngle) && _longitude < (Math.PI + bufferAngle)) {
+        quadrant = quadrant.concat(quadrant1);
+    }
+
+    if (_colatitude < (Math.PI / 2 + bufferAngle) && _longitude >= (Math.PI - bufferAngle)) {
+        quadrant = quadrant.concat(quadrant2);
+    }
+
+    if (_colatitude >= (Math.PI / 2 - bufferAngle) && _longitude < (Math.PI + bufferAngle)) {
+        quadrant = quadrant.concat(quadrant3);
+    }
+
+    if (_colatitude >= (Math.PI / 2 - bufferAngle) && _longitude >= (Math.PI - bufferAngle)) {
+        quadrant = quadrant.concat(quadrant4);
+    }
+
+    return quadrant;
+} 
+
 function translateRocket(radius, colatitude, longitude) {
     "use strict";
     var oldPosition = [
@@ -178,32 +202,12 @@ function createRocket() {
 
 function detectCollision() {
     "use strict";
-    var quadrant;
+    var quadrant = checkCollisionQuadrant();
 
     //rocket coordinates
     var x = rocketObj.position.x;
     var y = rocketObj.position.y;
     var z = rocketObj.position.z;
-
-    //quadrant 1
-    if (_colatitude < Math.PI / 2 && _longitude < Math.PI) {
-        quadrant = quadrant1;
-    }
-
-    //quadrant 2
-    else if (_colatitude < Math.PI / 2 && _longitude >= Math.PI) {
-        quadrant = quadrant2;
-    }
-
-    //quadrant 3
-    else if (_colatitude >= Math.PI / 2 && _longitude < Math.PI) {
-        quadrant = quadrant3;
-    }
-
-    //quadrant 4
-    else if (_colatitude >= Math.PI / 2 && _longitude >= Math.PI) {
-        quadrant = quadrant4;
-    }
 
     for (var i = quadrant.length - 1; i >= 0; i--) {
         var obj = quadrant[i];
