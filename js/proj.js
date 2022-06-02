@@ -50,22 +50,29 @@ function checkCollisionQuadrant() {
     var quadrant = [];
     var bufferAngle = (5 * Math.PI) / 180;
 
-    if (_colatitude < (Math.PI / 2 + bufferAngle) && _longitude < (Math.PI + bufferAngle)) {
+    console.log("Colatitude: " + _colatitude + "|Longitude: " + _longitude);
+
+    if (_colatitude < ((Math.PI / 2) + bufferAngle) && ((_longitude >= 0 && _longitude <= Math.PI + bufferAngle) || (_longitude >= Math.PI * 2 - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant1);
+        console.log("Quadrant 1");
     }
 
-    if (_colatitude < (Math.PI / 2 + bufferAngle) && _longitude >= (Math.PI - bufferAngle)) {
+    if (_colatitude < ((Math.PI / 2) + bufferAngle) && ((_longitude >= 0 && _longitude <= bufferAngle) || (_longitude >= Math.PI - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant2);
+        console.log("Quadrant 2");
     }
 
-    if (_colatitude >= (Math.PI / 2 - bufferAngle) && _longitude < (Math.PI + bufferAngle)) {
+    if (_colatitude >= ((Math.PI / 2) - bufferAngle) && ((_longitude >= 0 && _longitude <= Math.PI + bufferAngle) || (_longitude >= Math.PI * 2 - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant3);
+        console.log("Quadrant 3");
     }
 
-    if (_colatitude >= (Math.PI / 2 - bufferAngle) && _longitude >= (Math.PI - bufferAngle)) {
+    if (_colatitude >= ((Math.PI / 2) - bufferAngle) && ((_longitude >= 0 && _longitude <= bufferAngle) || (_longitude >= Math.PI - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant4);
+        console.log("Quadrant 4");
     }
 
+    console.log(quadrant);
     return quadrant;
 } 
 
@@ -439,19 +446,19 @@ function createOctahedron(r) {
 }
 
 function createTrash() {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         createDodecahedron((planetRadius / 22) / 2);
     }
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         createPyramid((planetRadius / 22) / 2, planetRadius / 22);
     }
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         createCube(planetRadius / 22);
     }
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
         createOctahedron((planetRadius / 22) / 2);
     }
 }
