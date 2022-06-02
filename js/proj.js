@@ -28,8 +28,9 @@ var rocketObj,
     rocketBody,
     rocketNose,
     windowRocket,
-    thrusters = [];
-const objects = [];
+    thrusters,
+    thruster = [],
+    secondary;
 
 var quadrant1 = [],
     quadrant2 = [],
@@ -111,6 +112,8 @@ function createRocket() {
 
     rocketObj = new THREE.Group();
 
+    secondary = new THREE.Group();
+
     material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0 });
     geometry = new THREE.SphereGeometry(totalHeight / 2, 32, 16);
     colisionSphere = new THREE.Mesh(geometry, material);
@@ -127,12 +130,27 @@ function createRocket() {
     geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 15);
     windowRocket = new THREE.Mesh(geometry, material);
 
+    thrusters = new THREE.Group();
+
     material = new THREE.MeshBasicMaterial({ color: "#a91b0d" });
     geometry = new THREE.CapsuleGeometry(0.3, thrusterHeight, 4, 8);
-    thrusters.push(new THREE.Mesh(geometry, material));
-    thrusters.push(new THREE.Mesh(geometry, material));
-    thrusters.push(new THREE.Mesh(geometry, material));
-    thrusters.push(new THREE.Mesh(geometry, material));
+    thruster[0] = new THREE.Mesh(geometry, material);
+    thruster[0].position.set(1, 0, 0);
+    thrusters.add(thruster[0]);
+
+    thruster[1] = new THREE.Mesh(geometry, material);
+    thruster[1].position.set(-1, 0, 0);
+    thrusters.add(thruster[1]);
+
+    thruster[2] = new THREE.Mesh(geometry, material);
+    thruster[2].position.set(0, 0, 1);
+    thrusters.add(thruster[2]);
+
+    thruster[3] = new THREE.Mesh(geometry, material);
+    thruster[3].position.set(0, 0, -1);
+    thrusters.add(thruster[3]);
+
+    thrusters.position.set(0, -bodyHeight / 2, 0);
 
     _colatitude = Math.random() * ((181 * Math.PI) / 180);
     _longitude = Math.random() * ((361 * Math.PI) / 180);
@@ -143,20 +161,16 @@ function createRocket() {
         _colatitude,
         _longitude
     );
+
     windowRocket.rotateX(Math.PI / 2);
     windowRocket.position.set(0, 0.5, 0.9);
     rocketNose.position.set(0, bodyHeight / 2 + noseHeight / 2, 0);
-    thrusters[0].position.set(1, -bodyHeight / 2, 0);
-    thrusters[1].position.set(-1, -bodyHeight / 2, 0);
-    thrusters[2].position.set(0, -bodyHeight / 2, 1);
-    thrusters[3].position.set(0, -bodyHeight / 2, -1);
 
-    rocketBody.add(thrusters[0]);
-    rocketBody.add(thrusters[1]);
-    rocketBody.add(thrusters[2]);
-    rocketBody.add(thrusters[3]);
-    rocketBody.add(rocketNose);
-    rocketBody.add(windowRocket);
+
+    secondary.add(thrusters);
+    secondary.add(windowRocket);
+    secondary.add(rocketNose);
+    rocketBody.add(secondary);
     colisionSphere.add(rocketBody);
     rocketObj.add(colisionSphere);
     scene.add(rocketObj);
