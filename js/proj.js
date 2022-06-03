@@ -38,7 +38,7 @@ var quadrant1 = [],
     quadrant4 = [];
 var toDelete = [];
 
-var signal = 1;
+var sign = 1;
 
 var colors = [
     0xdda0dd, 0x98fb98, 0x87cefa, 0xffffe0, 0xcd5c5c, 0xf0e68c, 0x00ffff,
@@ -50,29 +50,22 @@ function checkCollisionQuadrant() {
     var quadrant = [];
     var bufferAngle = (5 * Math.PI) / 180;
 
-    console.log("Colatitude: " + _colatitude + "|Longitude: " + _longitude);
-
     if (_colatitude < ((Math.PI / 2) + bufferAngle) && ((_longitude >= 0 && _longitude <= Math.PI + bufferAngle) || (_longitude >= Math.PI * 2 - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant1);
-        console.log("Quadrant 1");
     }
 
     if (_colatitude < ((Math.PI / 2) + bufferAngle) && ((_longitude >= 0 && _longitude <= bufferAngle) || (_longitude >= Math.PI - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant2);
-        console.log("Quadrant 2");
     }
 
     if (_colatitude >= ((Math.PI / 2) - bufferAngle) && ((_longitude >= 0 && _longitude <= Math.PI + bufferAngle) || (_longitude >= Math.PI * 2 - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant3);
-        console.log("Quadrant 3");
     }
 
     if (_colatitude >= ((Math.PI / 2) - bufferAngle) && ((_longitude >= 0 && _longitude <= bufferAngle) || (_longitude >= Math.PI - bufferAngle && _longitude <= Math.PI * 2))) {
         quadrant = quadrant.concat(quadrant4);
-        console.log("Quadrant 4");
     }
 
-    console.log(quadrant);
     return quadrant;
 } 
 
@@ -84,18 +77,18 @@ function translateRocket(radius, colatitude, longitude) {
         radius * Math.cos(_colatitude),
     ];
 
-    _colatitude += colatitude * signal; // theta, from 0 to pi
+    _colatitude += colatitude * sign; // theta, from 0 to pi
     _longitude += longitude; // phi, from 0 to 2pi
 
     if (_colatitude < 0) {
         _colatitude = -_colatitude;
         _longitude = _longitude - Math.PI;
-        signal = signal * -1;
+        sign = sign * -1;
     }
     if (_colatitude > Math.PI) {
         _colatitude = Math.PI - (_colatitude - Math.PI);
         _longitude = _longitude - Math.PI;
-        signal = signal * -1;
+        sign = sign * -1;
     }
     if (_longitude < 0) {
         _longitude = Math.PI * 2 + _longitude;
@@ -446,19 +439,19 @@ function createOctahedron(r) {
 }
 
 function createTrash() {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         createDodecahedron((planetRadius / 22) / 2);
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         createPyramid((planetRadius / 22) / 2, planetRadius / 22);
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         createCube(planetRadius / 22);
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         createOctahedron((planetRadius / 22) / 2);
     }
 }
